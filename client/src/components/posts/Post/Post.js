@@ -10,7 +10,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { useDispatch } from 'react-redux';
 import { deletePost, likePost } from '../../../actions/posts';
-// import EmojiPicker, { SkinTones } from 'emoji-picker-react';
 
 const Post = ({ post, setCurrentId }) => {
   const classes = styles();

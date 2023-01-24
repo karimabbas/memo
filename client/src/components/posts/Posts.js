@@ -8,7 +8,7 @@ import useStyles from './styles';
 const Posts = ({setCurrentId}) => {
     const classes = useStyles();
     const posts = useSelector((state) => state.postsStore);
-    console.log(posts)
+    // console.log(posts)
     return (
         { posts } ?
             <Grid className={classes.mainContainer} container alignItems="stretch" spacing={3}>
