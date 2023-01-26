@@ -27,11 +27,11 @@ export default makeStyles(() => ({
     marginTop:6
   },
   submit: {
-    margin: 3
+    margin: 3,
     // margin: theme.spacing(3, 0, 2),
   },
   googleButton: {
-    marginBottom:2
+    marginBottom:5,
     // marginBottom: theme.spacing(2),
   },
   lock :{

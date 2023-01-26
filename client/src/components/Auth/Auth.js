@@ -1,36 +1,83 @@
-import React, { useState } from 'react'
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { Avatar, Button, Container, Grid, Paper, Typography } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Avatar, Button, Container, Grid, Icon, Paper, Typography } from '@mui/material'
 import styles from "./styles";
 import Input from './Input';
+import { GoogleLogin } from 'react-google-login';
+// import { GoogleLogin } from '@react-oauth/google';
+import { gapi } from "gapi-script";
+import { createBrowserHistory } from '@remix-run/router';
+import { useDispatch } from 'react-redux';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { signin, signup } from '../../actions/auth';
 
 const Auth = () => {
+
+  useEffect(() => {
+    function start() {
+      gapi.client.init({
+        clientId: "681518767098-ho2t7a8edltss2se9242o0nf5vmijmvd.apps.googleusercontent.com",
+        scope: 'email',
+      });
+    }
+
+    gapi.load('client:auth2', start);
+  }, []);
 
   const initialState = { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' };
 
   const classes = styles();
 
   const [form, setForm] = useState(initialState);
-  const [isSignup, setIsSignup] = useState(true);
+  const [isSignup, setIsSignup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
+    if (isSignup) {
+      dispatch(signup(form),navigate('/'));
+      
+    }
+    else {
+      dispatch(signin(form),navigate('/'));
+    }
   }
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
+
   const switchMode = () => {
     setIsSignup((prevIsSignup) => !prevIsSignup);
     setShowPassword(false);
   };
 
+  const googleSuccess = async (credentialResponse) => {
+    console.log(credentialResponse);
+    const result = credentialResponse.profileObj;
+    const token = credentialResponse.tokenId;
+
+    try {
+      dispatch({
+        type: "AUTH",
+        data: { result, token }
+      });
+      navigate("/");
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  const googleError = (error) => {
+    alert("Google Sing in unsuccessfull,Please Try Again");
+    console.log(error)
+  };
   return (
     <Container component="main" maxWidth="xs">
       <Paper className={classes.paper} elevation={3}>
@@ -52,7 +99,18 @@ const Auth = () => {
           <Button type="submit" fullWidth variant="contained" color="primary" className={classes.submit}>
             {isSignup ? 'Sign Up' : 'Sign In'}
           </Button>
-
+          
+          <GoogleLogin
+            clientId="681518767098-ho2t7a8edltss2se9242o0nf5vmijmvd.apps.googleusercontent.com"
+            render={(renderProps) => (
+              <Button className={classes.googleButton} color="primary" fullWidth onClick={renderProps.onClick} disabled={renderProps.disabled} startIcon={<Icon />} variant="contained">
+                Google Sign In
+              </Button>
+            )}
+            onSuccess={googleSuccess}
+            onFailure={googleError}
+            cookiePolicy="single_host_origin"
+          />
           <Grid container justify="flex-end">
             <Grid item>
               <Button onClick={switchMode}>
